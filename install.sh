@@ -1,8 +1,8 @@
-echo "This will delete ALL local files and convert this machine to a Nixbook!";
+echo "This will delete ALL local files and convert this machine to a NixTV!";
 read -p "Do you want to continue? (y/n): " answer
 
 if [[ "$answer" =~ ^[Yy]$ ]]; then
-  echo "Installing NixBook..."
+  echo "Installing NixTV..."
 
   # Set up local files
   rm -rf ~/
@@ -12,13 +12,12 @@ if [[ "$answer" =~ ^[Yy]$ ]]; then
   mkdir ~/Pictures
   mkdir ~/.local
   mkdir ~/.local/share
-  cp -R /etc/nixbook/config/config ~/.config
-  cp /etc/nixbook/config/desktop/* ~/Desktop/
-  cp -R /etc/nixbook/config/applications ~/.local/share/applications
+  cp -R /etc/nixtv/config/config ~/.config
+  cp -R /etc/nixtv/config/applications ~/.local/share/applications
 
   # The rest of the install should be hands off
   # Add Nixbook config and rebuild
-  sudo sed -i '/hardware-configuration\.nix/a\      /etc/nixbook/base.nix' /etc/nixos/configuration.nix
+  sudo sed -i '/hardware-configuration\.nix/a\      /etc/nixtv/base.nix' /etc/nixos/configuration.nix
   
   # Set up flathub repo while we have sudo
   nix-shell -p flatpak --run 'sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo'
@@ -26,12 +25,12 @@ if [[ "$answer" =~ ^[Yy]$ ]]; then
   sudo nixos-rebuild switch
 
   # Add flathub and some apps
-  flatpak install flathub com.google.Chrome -y
-  flatpak install flathub us.zoom.Zoom -y
-  flatpak install flathub org.libreoffice.LibreOffice -y
-  
-  # Fix for zoom flatpak
-  flatpak override --env=ZYPAK_ZYGOTE_STRATEGY_SPAWN=0 us.zoom.Zoom
+  flatpak install flathub org.mozilla.firefox -y
+  flatpak install flathub io.github.ungoogled_software.ungoogled_chromium -y
+  flatpak install flathub dev.heppen.webapps  -y
+  flatpak install flathub de.k_bo.Televido -y
+  flatpak install flathub cafe.avery.Delfin -y
+  flatpak install flathub rocks.shy.VacuumTube -y
   
   reboot
 else

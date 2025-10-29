@@ -1,6 +1,6 @@
 { config, lib, pkgs, ... }:
 let
-  nixChannel = "https://nixos.org/channels/nixos-25.05"; 
+  nixChannel = "https://nixos.org/channels/nixos-unstable"; 
 
   ## Notify Users Script
   notifyUsersScript = pkgs.writeScript "notify-users.sh" ''
@@ -36,10 +36,10 @@ let
   updateGitScript = pkgs.writeScript "update-git.sh" ''
     set -eu
     
-    # Update nixbook configs
-    ${pkgs.git}/bin/git -C /etc/nixbook reset --hard
-    ${pkgs.git}/bin/git -C /etc/nixbook clean -fd
-    ${pkgs.git}/bin/git -C /etc/nixbook pull --rebase
+    # Update nixtv configs
+    ${pkgs.git}/bin/git -C /etc/nixtv reset --hard
+    ${pkgs.git}/bin/git -C /etc/nixtv clean -fd
+    ${pkgs.git}/bin/git -C /etc/nixtv pull --rebase
 
     currentChannel=$(${pkgs.nix}/bin/nix-channel --list | ${pkgs.gnugrep}/bin/grep '^nixos' | ${pkgs.gawk}/bin/awk '{print $2}')
     targetChannel="${nixChannel}"
@@ -54,25 +54,29 @@ let
   installFlatpakAppsScript = pkgs.writeScript "install-flatpak-apps.sh" ''
     set -eu
 
-    if ${pkgs.flatpak}/bin/flatpak list --app | ${pkgs.gnugrep}/bin/grep -q "org.libreoffice.LibreOffice"; then
+    if ${pkgs.flatpak}/bin/flatpak list --app | ${pkgs.gnugrep}/bin/grep -q "org.mozilla.firefox"; then
       echo "Flatpaks already installed"
     else
 
 
       # Install Flatpak applications
-      ${notifyUsersScript} "Installing Google Chrome" "Please wait while we install Google Chrome..."
-      ${pkgs.flatpak}/bin/flatpak install flathub com.google.Chrome -y
+      ${notifyUsersScript} "Installing Firefox" "Please wait while we install Mozilla Firefox..."
+      ${pkgs.flatpak}/bin/flatpak install flathub org.mozilla.firefox -y
 
-      ${notifyUsersScript} "Installing Zoom" "Please wait while we install Zoom..."
-      ${pkgs.flatpak}/bin/flatpak install flathub us.zoom.Zoom -y
+      ${notifyUsersScript} "Installing Ungoogled Chromium" "Please wait while we install Ungoogled Chromium..."
+      ${pkgs.flatpak}/bin/flatpak install flathub io.github.ungoogled_software.ungoogled_chromium -y
+      
+      ${notifyUsersScript} "Installing Quick Web Apps" "Please wait while we install Quick Web Apps ..."
+      ${pkgs.flatpak}/bin/flatpak install flathub dev.heppen.webapps  -y
 
-      ${notifyUsersScript} "Installing LibreOffice" "Please wait while we install LibreOffice..."
-      ${pkgs.flatpak}/bin/flatpak install flathub org.libreoffice.LibreOffice -y
+      ${notifyUsersScript} "Installing Televido" "Please wait while we install Televido..."
+      ${pkgs.flatpak}/bin/flatpak install flathub de.k_bo.Televido -y
 
-      # Fix for zoom flatpak
-      ${pkgs.flatpak}/bin/flatpak override --env=ZYPAK_ZYGOTE_STRATEGY_SPAWN=0 us.zoom.Zoom
-      ${pkgs.flatpak}/bin/flatpak install flathub org.gtk.Gtk3theme.Mint-Y-Dark-Blue -y
+      ${notifyUsersScript} "Installing Delfin" "Please wait while we install Delfin..."
+      ${pkgs.flatpak}/bin/flatpak install flathub cafe.avery.Delfin -y
 
+      ${notifyUsersScript} "Installing Vacuum Tube" "Please wait while we install Vaccum Tube..."
+      ${pkgs.flatpak}/bin/flatpak install flathub rocks.shy.VacuumTube -y
 
       users=$(${pkgs.systemd}/bin/loginctl list-sessions --no-legend | ${pkgs.gawk}/bin/awk '{print $1}' | while read session; do
         loginctl show-session "$session" -p Name | cut -d'=' -f2
@@ -83,10 +87,10 @@ let
         uid=$(id -u "$user") || continue
         [ -S "/run/user/$uid/bus" ] || continue
 
-        cp /etc/nixbook/config/flatpak_links/* /home/$user/Desktop/
+        cp /etc/nixtv/config/flatpak_links/* /home/$user/Desktop/
         chown $user /home/$user/Desktop/*
       
-        ${notifyUsersScript} "Installing Applications Complete" "Please Log out or restart to start using Nixbook and it's applications!"
+        ${notifyUsersScript} "Installing Applications Complete" "Please Log out or restart to start using NixTV and it's applications!"
       done
     fi
 
@@ -94,18 +98,25 @@ let
 in
 {
   zramSwap.enable = true;
-  systemd.extraConfig = ''
-    DefaultTimeoutStopSec=10s
-  '';
 
   # Enable the X11 windowing system.
-  services.xserver.enable = true;
   nixpkgs.config.allowUnfree = true;
   hardware.bluetooth.enable = true;
 
-  # Enable the Cinnamon Desktop Environment.
-  services.xserver.displayManager.lightdm.enable = true;
-  services.xserver.desktopManager.cinnamon.enable = true;
+
+  # GNOME
+  services.displayManager.gdm.enable = true;
+  services.desktopManager.gnome.enable = true;
+
+  # To disable installing GNOME's suite of applications
+  # and only be left with GNOME shell.
+  services.gnome.core-apps.enable = false;
+  services.gnome.core-developer-tools.enable = false;
+  services.gnome.games.enable = false;
+  environment.gnome.excludePackages = with pkgs; [ gnome-tour gnome-user-docs ];
+
+  services.input-remapper.enable = true;
+  services.gvfs.enable = true;
   xdg.portal.enable = true;
 
   # Enable Printing
@@ -118,30 +129,23 @@ in
 
   environment.systemPackages = with pkgs; [
     git
-    firefox
     libnotify
     gawk
     gnugrep
+    neovim
+    ripgrep
     sudo
     dconf
-    gnome-software
+    adwaita-fonts
     gnome-calculator
     gnome-calendar
-    gnome-screenshot
+    gnome-console
+    nautilus
     flatpak
     xdg-desktop-portal
     xdg-desktop-portal-gtk
     xdg-desktop-portal-gnome
     system-config-printer
-
-    (makeDesktopItem {
-      name = "zoommtg-handler";
-      desktopName = "Zoom URI Handler";
-      exec = "gtk-launch us.zoom.Zoom %u";
-      mimeTypes = [ "x-scheme-handler/zoommtg" ];
-      noDisplay = true;
-      type = "Application";
-    })
   ];
 
   services.flatpak.enable = true;
@@ -167,7 +171,7 @@ in
   nix.gc = {
     automatic = true;
     dates = "Mon 3:40";
-    options = "--delete-older-than 30d";
+    options = "--delete-older-than 14d";
   };
   
   # Auto update config, flatpak and channel
@@ -224,9 +228,6 @@ in
             
       ${pkgs.nixos-rebuild}/bin/nixos-rebuild boot --upgrade
 
-      # Fix for zoom flatpak
-      ${pkgs.flatpak}/bin/flatpak override --env=ZYPAK_ZYGOTE_STRATEGY_SPAWN=0 us.zoom.Zoom
-
       ${notifyUsersScript} "System Updates Complete" "Updates are complete!  Simply reboot the computer whenever is convenient to apply updates."
     '';
     serviceConfig = {
@@ -250,7 +251,3 @@ in
   
 }
 
-# Notes
-#
-# To reverse zoom flatpak fix:
-#   flatpak override --unset-env=ZYPAK_ZYGOTE_STRATEGY_SPAWN us.zoom.Zoom

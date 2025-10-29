@@ -1,8 +1,8 @@
-echo "This will update your Nixbook and reboot";
+echo "This will update your NixTV and reboot";
 read -p "Do you want to continue? (y/n): " answer
 
 if [[ "$answer" =~ ^[Yy]$ ]]; then
-  echo "Updating Nixbook..."
+  echo "Updating NixTV..."
 
   sudo systemctl start auto-update-config.service;
 
