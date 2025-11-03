@@ -78,6 +78,27 @@ let
       ${notifyUsersScript} "Installing Vacuum Tube" "Please wait while we install Vaccum Tube..."
       ${pkgs.flatpak}/bin/flatpak install flathub rocks.shy.VacuumTube -y
 
+      ${notifyUsersScript} "Installing Materialious" "Please wait while we install Materialious..."
+      ${pkgs.flatpak}/bin/flatpak install flathub us.materialio.Materialious -y
+      
+      ${notifyUsersScript} "Installing Celluloid" "Please wait while we install Celluloid..."
+      ${pkgs.flatpak}/bin/flatpak install flathub io.github.celluloid_player.Celluloid -y
+      
+      ${notifyUsersScript} "Installing MakeMKV" "Please wait while we install MakeMKV..."
+      ${pkgs.flatpak}/bin/flatpak install flathub com.makemkv.MakeMKV -y
+      
+      ${notifyUsersScript} "Installing VLC" "Please wait while we install VLC..."
+      ${pkgs.flatpak}/bin/flatpak install flathub org.videolan.VLC -y
+      
+      ${notifyUsersScript} "Installing Bluray Java menus (BDJ) plugin for VLC" "Please wait while we install Bluray Java menus (BDJ) plugin for VLC..."
+      ${pkgs.flatpak}/bin/flatpak install flathub org.videolan.VLC.Plugin.bdj -y
+      
+      ${notifyUsersScript} "Installing FDK-AAC Encoding Plugin for VLC" "Please wait while we install FDK-AAC Encoding Plugin for VLC..."
+      ${pkgs.flatpak}/bin/flatpak install flathub org.videolan.VLC.Plugin.fdkaac -y
+      
+      ${notifyUsersScript} "Installing MakeMKV plugin for VLC" "Please wait while we install MakeMKV plugin for VLC..."
+      ${pkgs.flatpak}/bin/flatpak install flathub org.videolan.VLC.Plugin.makemkv -y
+
       users=$(${pkgs.systemd}/bin/loginctl list-sessions --no-legend | ${pkgs.gawk}/bin/awk '{print $1}' | while read session; do
         loginctl show-session "$session" -p Name | cut -d'=' -f2
       done | sort -u)
