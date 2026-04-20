@@ -66,20 +66,17 @@ let
       ${notifyUsersScript} "Installing Ungoogled Chromium" "Please wait while we install Ungoogled Chromium..."
       ${pkgs.flatpak}/bin/flatpak install flathub io.github.ungoogled_software.ungoogled_chromium -y
       
-      ${notifyUsersScript} "Installing Quick Web Apps" "Please wait while we install Quick Web Apps ..."
-      ${pkgs.flatpak}/bin/flatpak install flathub dev.heppen.webapps  -y
+      ${notifyUsersScript} "Installing Web App Hub" "Please wait while we install Web App Hub..."
+      ${pkgs.flatpak}/bin/flatpak install flathub org.pvermeer.WebAppHub  -y
 
       ${notifyUsersScript} "Installing Televido" "Please wait while we install Televido..."
       ${pkgs.flatpak}/bin/flatpak install flathub de.k_bo.Televido -y
 
-      ${notifyUsersScript} "Installing Delfin" "Please wait while we install Delfin..."
-      ${pkgs.flatpak}/bin/flatpak install flathub cafe.avery.Delfin -y
+      ${notifyUsersScript} "Installing Pipeline" "Please wait while we install Pipeline..."
+      ${pkgs.flatpak}/bin/flatpak install flathub de.schmidhuberj.tubefeeder -y
 
-      ${notifyUsersScript} "Installing Vacuum Tube" "Please wait while we install Vaccum Tube..."
-      ${pkgs.flatpak}/bin/flatpak install flathub rocks.shy.VacuumTube -y
-
-      ${notifyUsersScript} "Installing Materialious" "Please wait while we install Materialious..."
-      ${pkgs.flatpak}/bin/flatpak install flathub us.materialio.Materialious -y
+      ${notifyUsersScript} "Installing Parabolic" "Please wait while we install Parabolic..."
+      ${pkgs.flatpak}/bin/flatpak install flathub org.nickvision.tubeconverter -y
       
       ${notifyUsersScript} "Installing Celluloid" "Please wait while we install Celluloid..."
       ${pkgs.flatpak}/bin/flatpak install flathub io.github.celluloid_player.Celluloid -y
@@ -134,6 +131,8 @@ in
   services.gnome.core-apps.enable = false;
   services.gnome.core-developer-tools.enable = false;
   services.gnome.games.enable = false;
+  services.gnome.gnome-online-accounts.enable = false;
+  services.gnome.gnome-remote-desktop.enable = false;
   environment.gnome.excludePackages = with pkgs; [ gnome-tour gnome-user-docs ];
 
   services.input-remapper.enable = true;
@@ -159,7 +158,6 @@ in
     dconf
     adwaita-fonts
     gnome-calculator
-    gnome-calendar
     gnome-console
     nautilus
     flatpak
@@ -167,6 +165,7 @@ in
     xdg-desktop-portal-gtk
     xdg-desktop-portal-gnome
     system-config-printer
+    tmux
   ];
 
   services.flatpak.enable = true;
